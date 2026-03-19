@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 def build_sankey() -> go.Figure:
     # Updated data from the application tracker.
     raw_links = [
-        ("Total Applications", "Ghosted/Rejected", 107),
+        ("Total Applications", "Ghosted/Rejected", 108),
         ("Total Applications", "Interview", 6),
         ("Total Applications", "OA (Online Assessment)", 3),
         ("Interview", "Offer", 2),
@@ -29,7 +29,7 @@ def build_sankey() -> go.Figure:
     interview_denied = next(v for s, t, v in raw_links if s == "Interview" and t == "Denied Interview")
 
     interview_total = initial_interview + oa_to_interview
-    ghosted_total = initial_ghosted + interview_rejected
+    ghosted_total = initial_ghosted
 
     node_keys = [
         "Total Applications",
