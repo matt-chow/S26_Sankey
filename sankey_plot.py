@@ -30,6 +30,7 @@ def build_sankey() -> go.Figure:
 
     interview_total = initial_interview + oa_to_interview
     ghosted_total = initial_ghosted
+    rejected_total = interview_rejected + interview_denied
 
     node_keys = [
         "Total Applications",
@@ -38,7 +39,7 @@ def build_sankey() -> go.Figure:
         "Interview",
         "Ranked",
         "Offer",
-        "Denied Interview",
+        "Rejected",
     ]
     labels = [
         f"Total Applications ({total_apps})",
@@ -47,7 +48,7 @@ def build_sankey() -> go.Figure:
         f"Interview ({interview_total})",
         f"Ranked ({interview_ranked})",
         f"Offer ({interview_offer})",
-        f"Denied Interview ({interview_denied})",
+        f"Rejected ({rejected_total})",
     ]
     index = {label: i for i, label in enumerate(node_keys)}
 
@@ -58,8 +59,7 @@ def build_sankey() -> go.Figure:
         ("OA", "Interview", oa_to_interview),
         ("Interview", "Offer", interview_offer),
         ("Interview", "Ranked", interview_ranked),
-        ("Interview", "Ghosted/Rejected", interview_rejected),
-        ("Interview", "Denied Interview", interview_denied),
+        ("Interview", "Rejected", rejected_total),
     ]
 
     source = [index[s] for s, _, _ in links]
@@ -88,14 +88,14 @@ def build_sankey() -> go.Figure:
         green,  # Interview
         green,  # Ranked
         light_gold,  # Offer
-        red,    # Denied Interview
+        red,    # Rejected
     ]
 
     link_colors = []
     for s, t, _ in links:
         if t == "Offer":
             link_colors.append(light_gold_rgba)
-        elif t in {"Ghosted/Rejected", "Denied Interview"}:
+        elif t in {"Ghosted/Rejected", "Rejected"}:
             link_colors.append(red_rgba)
         else:
             link_colors.append(green_rgba)
