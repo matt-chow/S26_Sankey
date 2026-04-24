@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 def build_sankey() -> go.Figure:
     # Updated data from the application tracker.
     raw_links = [
-        ("Total Applications", "Ghosted/Rejected", 110),
+        ("Total Applications", "Ghosted/Rejected", 108),
         ("Total Applications", "Interview", 6),
         ("Total Applications", "OA (Online Assessment)", 3),
         ("Interview", "Offer", 2),
@@ -12,6 +12,7 @@ def build_sankey() -> go.Figure:
         ("Interview", "Ghosted/Rejected", 1),
         ("Interview", "Denied Interview", 1),
         ("OA (Online Assessment)", "Interview", 1),
+        ("OA (Online Assessment)", "Ghosted/Rejected", 2),
     ]
 
     # Transform to: Total -> Initial Status -> Final Outcome,
@@ -22,6 +23,7 @@ def build_sankey() -> go.Figure:
     initial_interview = next(v for s, t, v in raw_links if s == "Total Applications" and t == "Interview")
 
     oa_to_interview = next(v for s, t, v in raw_links if s == "OA (Online Assessment)" and t == "Interview")
+    oa_to_ghosted = next(v for s, t, v in raw_links if s == "OA (Online Assessment)" and t == "Ghosted/Rejected")
 
     interview_offer = next(v for s, t, v in raw_links if s == "Interview" and t == "Offer")
     interview_ranked = next(v for s, t, v in raw_links if s == "Interview" and t == "Ranked")
@@ -29,7 +31,7 @@ def build_sankey() -> go.Figure:
     interview_denied = next(v for s, t, v in raw_links if s == "Interview" and t == "Denied Interview")
 
     interview_total = initial_interview + oa_to_interview
-    ghosted_total = initial_ghosted
+    ghosted_total = initial_ghosted + oa_to_ghosted
     rejected_total = interview_rejected + interview_denied
 
     node_keys = [
@@ -57,6 +59,7 @@ def build_sankey() -> go.Figure:
         ("Total Applications", "OA", initial_oa),
         ("Total Applications", "Interview", initial_interview),
         ("OA", "Interview", oa_to_interview),
+        ("OA", "Ghosted/Rejected", oa_to_ghosted),
         ("Interview", "Offer", interview_offer),
         ("Interview", "Ranked", interview_ranked),
         ("Interview", "Rejected", rejected_total),
@@ -103,17 +106,18 @@ def build_sankey() -> go.Figure:
     fig = go.Figure(
         data=[
             go.Sankey(
-                arrangement="snap",
+                arrangement="fixed",
+                domain=dict(x=[0.0, 1.0], y=[0.0, 0.82]),
                 node=dict(
-                    pad=40,
-                    thickness=15,
+                    pad=34,
+                    thickness=12,
                     line=dict(color=white, width=0),
                     label=labels,
                     color=node_colors,
-                    # Position Ghosted/Rejected toward the top so high-volume
-                    # rejection flow recedes into the background.
-                    x=[0.02, 0.50, 0.28, 0.56, 0.86, 0.86, 0.86],
-                    y=[0.46, 0.06, 0.72, 0.78, 0.58, 0.82, 0.24],
+                    # Recenter streams to reduce whitespace and keep the
+                    # dominant rejection wave inside the canvas bounds.
+                    x=[0.02, 0.46, 0.26, 0.58, 0.78, 0.78, 0.78],
+                    y=[0.50, 0.14, 0.72, 0.84, 0.68, 0.84, 0.34],
                 ),
                 link=dict(
                     source=source,
@@ -130,11 +134,12 @@ def build_sankey() -> go.Figure:
 
     fig.update_layout(
         title_text=f"Job Application Funnel ({total_apps} Applications)",
-        font_size=12,
+        font_size=11,
         font=dict(family="Arial, sans-serif", color=dark_gray),
         paper_bgcolor=white,
         plot_bgcolor=white,
-        margin=dict(l=20, r=20, t=60, b=20),
+        height=540,
+        margin=dict(l=14, r=14, t=48, b=14),
     )
 
     return fig
