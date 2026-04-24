@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 def build_sankey() -> go.Figure:
     # Updated data from the application tracker.
     raw_links = [
-        ("Total Applications", "Ghosted/Rejected", 108),
+        ("Total Applications", "Ghosted/Rejected", 110),
         ("Total Applications", "Interview", 6),
         ("Total Applications", "OA (Online Assessment)", 3),
         ("Interview", "Offer", 2),
